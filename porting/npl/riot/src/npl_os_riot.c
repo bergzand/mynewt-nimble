@@ -61,9 +61,12 @@ ble_npl_callout_init(struct ble_npl_callout *c, struct ble_npl_eventq *evq,
 ble_npl_error_t
 ble_npl_callout_reset(struct ble_npl_callout *c, ble_npl_time_t ticks)
 {
-    uint32_t now = xtimer_now_usec();
-    c->target_ticks = (ble_npl_time_t)((now / US_PER_MS) + ticks);
-    xtimer_set(&c->timer, ((ticks * US_PER_MS) - ((xtimer_now_usec() - now) / 1000)));
+    /* Use critical section to ensure matching target_ticks and xtimer value. */
+    uint32_t crit_state = ble_npl_hw_enter_critical();
+    uint64_t now = xtimer_now_usec64();
+    c->target_ticks = now  + ticks * US_PER_MS;
+    xtimer_set64(&c->timer, ticks * US_PER_MS);
+    ble_npl_hw_exit_critical(crit_state);
     return BLE_NPL_OK;
 }
 
@@ -71,6 +74,6 @@ uint32_t
 ble_npl_callout_remaining_ticks(struct ble_npl_callout *co,
                                 ble_npl_time_t time)
 {
-    uint32_t now = xtimer_now_usec();
-    return ((uint32_t)co->target_ticks) - (now / US_PER_MS);
+    uint64_t now = xtimer_now_usec64();
+    return (uint32_t)((co->target_ticks - now) / US_PER_MS);
 }

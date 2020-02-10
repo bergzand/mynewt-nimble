@@ -51,7 +51,7 @@ struct ble_npl_eventq {
 
 struct ble_npl_callout {
     xtimer_t timer;
-    ble_npl_time_t target_ticks;
+    uint64_t target_ticks;
     struct ble_npl_event e;
     event_queue_t *q;
 };
@@ -215,7 +215,7 @@ ble_npl_callout_is_active(struct ble_npl_callout *c)
 static inline ble_npl_time_t
 ble_npl_callout_get_ticks(struct ble_npl_callout *co)
 {
-    return co->target_ticks;
+    return (ble_npl_time_t)co->target_ticks;
 }
 
 static inline void
