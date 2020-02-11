@@ -51,7 +51,7 @@ struct ble_npl_eventq {
 
 struct ble_npl_callout {
     xtimer_t timer;
-    uint64_t target_ticks;
+    uint64_t target_us;
     struct ble_npl_event e;
     event_queue_t *q;
 };
@@ -100,7 +100,8 @@ ble_npl_eventq_get(struct ble_npl_eventq *evq, ble_npl_time_t tmo)
     } else if (tmo == BLE_NPL_TIME_FOREVER) {
         return (struct ble_npl_event *)event_wait(&evq->q);
     } else {
-        return (struct ble_npl_event *)event_wait_timeout(&evq->q, (tmo * 1000));
+        return (struct ble_npl_event *)event_wait_timeout(&evq->q,
+                                                          (tmo * US_PER_MS));
     }
 }
 
@@ -215,7 +216,7 @@ ble_npl_callout_is_active(struct ble_npl_callout *c)
 static inline ble_npl_time_t
 ble_npl_callout_get_ticks(struct ble_npl_callout *co)
 {
-    return (ble_npl_time_t)co->target_ticks;
+    return (ble_npl_time_t)(co->target_us / US_PER_MS);
 }
 
 static inline void
@@ -227,7 +228,7 @@ ble_npl_callout_set_arg(struct ble_npl_callout *co, void *arg)
 static inline uint32_t
 ble_npl_time_get(void)
 {
-    return xtimer_now_usec() / 1000;
+    return xtimer_now_usec64() / 1000;
 }
 
 static inline ble_npl_error_t
