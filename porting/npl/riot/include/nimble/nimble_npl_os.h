@@ -100,8 +100,10 @@ ble_npl_eventq_get(struct ble_npl_eventq *evq, ble_npl_time_t tmo)
     } else if (tmo == BLE_NPL_TIME_FOREVER) {
         return (struct ble_npl_event *)event_wait(&evq->q);
     } else {
+        uint64_t tmo_us64 = tmo * US_PER_MS;
+        assert(tmo_us64 <= UINT32_MAX);
         return (struct ble_npl_event *)event_wait_timeout(&evq->q,
-                                                          (tmo * US_PER_MS));
+                                                          (tmo_us64));
     }
 }
 
@@ -260,7 +262,9 @@ ble_npl_time_ticks_to_ms32(ble_npl_time_t ticks)
 static inline void
 ble_npl_time_delay(ble_npl_time_t ticks)
 {
-    xtimer_usleep(ticks * 1000);
+    uint64_t us64 = ticks * US_PER_MS;
+    assert(us64 <= UINT32_MAX);
+    xtimer_usleep(us64);
 }
 
 static inline uint32_t
