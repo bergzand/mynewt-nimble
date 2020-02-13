@@ -228,7 +228,7 @@ ble_npl_callout_set_arg(struct ble_npl_callout *co, void *arg)
 static inline uint32_t
 ble_npl_time_get(void)
 {
-    return xtimer_now_usec64() / 1000;
+    return xtimer_now_usec64() / US_PER_MS;
 }
 
 static inline ble_npl_error_t
