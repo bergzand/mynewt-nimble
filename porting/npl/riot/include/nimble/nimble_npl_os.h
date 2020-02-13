@@ -103,7 +103,7 @@ ble_npl_eventq_get(struct ble_npl_eventq *evq, ble_npl_time_t tmo)
         uint64_t tmo_us64 = tmo * US_PER_MS;
         assert(tmo_us64 <= UINT32_MAX);
         return (struct ble_npl_event *)event_wait_timeout(&evq->q,
-                                                          tmo_us64);
+                                                          (uint32_t)tmo_us64);
     }
 }
 
@@ -264,7 +264,7 @@ ble_npl_time_delay(ble_npl_time_t ticks)
 {
     uint64_t us64 = ticks * US_PER_MS;
     assert(us64 <= UINT32_MAX);
-    xtimer_usleep(us64);
+    xtimer_usleep((uint32_t)us64);
 }
 
 static inline uint32_t
